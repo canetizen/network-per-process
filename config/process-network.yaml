@@ -1,0 +1,29 @@
+metrics:
+  counters:
+    - name: process_network_tx_bytes_total
+      help: Bytes written to sockets by a process, broken down by protocol
+      labels: &process_labels
+        - name: pid
+          size: 4
+          decoders:
+            - name: uint
+        - name: proto
+          size: 4
+          decoders:
+            - name: uint
+            - name: static_map
+              static_map:
+                6: tcp
+                17: udp
+        - name: comm
+          size: 16
+          decoders:
+            - name: string
+        - name: cmdline
+          size: 64
+          decoders:
+            - name: string
+
+    - name: process_network_rx_bytes_total
+      help: Bytes read from sockets by a process, broken down by protocol
+      labels: *process_labels

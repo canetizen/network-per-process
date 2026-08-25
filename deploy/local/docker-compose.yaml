@@ -1,0 +1,42 @@
+# Self-contained stack for trying the probe out on a single machine.
+# Ports are shifted so it can run next to an existing Prometheus/Grafana.
+services:
+  ebpf-exporter:
+    image: network-per-process-exporter:latest
+    build:
+      context: ../..
+      dockerfile: deploy/local/Dockerfile.exporter
+    container_name: npp-exporter
+    privileged: true
+    pid: host
+    ports:
+      - "9435:9435"
+    volumes:
+      - /sys:/sys:ro
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.1.0
+    container_name: npp-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.5.1
+    container_name: npp-grafana
+    ports:
+      - "3301:3000"
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    volumes:
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ../../grafana:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    restart: unless-stopped

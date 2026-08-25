@@ -1,0 +1,5 @@
+dist/
+bundle/
+bundle.tar.gz
+build/vmlinux.h
+.claude/

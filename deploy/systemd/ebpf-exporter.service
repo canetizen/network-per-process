@@ -1,0 +1,28 @@
+[Unit]
+Description=eBPF exporter for per-process network traffic
+Documentation=https://github.com/cloudflare/ebpf_exporter
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ebpf_exporter \
+    --config.dir=/etc/ebpf_exporter \
+    --config.names=process-network \
+    --web.listen-address=:9435
+
+# CAP_BPF loads the programs and maps, CAP_PERFMON attaches them to kprobes.
+# No other privilege is needed, so the exporter runs as a transient user.
+DynamicUser=true
+AmbientCapabilities=CAP_BPF CAP_PERFMON
+CapabilityBoundingSet=CAP_BPF CAP_PERFMON
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=strict
+PrivateTmp=true
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9 @@
+FROM ghcr.io/cloudflare/ebpf_exporter:v2.5.1
+
+# dist/ is produced by `make build` or `make build-docker`. The compiled object
+# is baked into the image so the single-machine demo stack (docker-compose)
+# runs without host dependencies.
+COPY dist/process-network.bpf.o /config/process-network.bpf.o
+COPY dist/process-network.yaml /config/process-network.yaml
+
+ENTRYPOINT ["/ebpf_exporter", "--config.dir=/config", "--config.names=process-network"]

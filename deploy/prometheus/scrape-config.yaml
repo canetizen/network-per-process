@@ -1,0 +1,17 @@
+# Merge one of these jobs into scrape_configs of the central Prometheus.
+# The `node` label is what the Grafana dashboard filters on.
+
+scrape_configs:
+  # Bare metal / VM nodes running the systemd unit.
+  - job_name: ebpf-process-network
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - node-1.example.internal:9435
+          - node-2.example.internal:9435
+          - node-3.example.internal:9435
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: '([^:]+)(:[0-9]+)?'
+        target_label: node
+        replacement: '${1}'
